@@ -326,12 +326,22 @@ export class CSharpRenderer extends ConvenienceRenderer {
 
     protected csType(t: Type, follow: (t: Type) => Type = followTargetType, withIssues: boolean = false): Sourcelike {
         const actualType = follow(t);
+
+        let negativeAllowed = true;
+        if (t.kind == 'integer' || t.kind == 'double') {
+            t.getAttributes().forEach((value, key) => {
+                if (key.name == 'minMax' && value[0] >= 0) {
+                    negativeAllowed = false;
+                }
+            });
+        }
+
         return matchType<Sourcelike>(
             actualType,
             (_anyType) => maybeAnnotated(withIssues, anyTypeIssueAnnotation, this._csOptions.typeForAny),
             (_nullType) => maybeAnnotated(withIssues, nullTypeIssueAnnotation, this._csOptions.typeForAny),
             (_boolType) => "bool",
-            (_integerType) => "long",
+            (_integerType) => negativeAllowed ? "long" : "ulong",
             (_doubleType) => this.doubleType,
             (_stringType) => "string",
             (arrayType) => {
@@ -407,6 +417,7 @@ export class CSharpRenderer extends ConvenienceRenderer {
     }
 
     protected propertyDefinition(property: ClassProperty, name: Name, _c: ClassType, _jsonName: string): Sourcelike {
+
         const t = property.type;
         const csType = property.isOptional
             ? this.nullableCSType(t, followTargetType, true)
