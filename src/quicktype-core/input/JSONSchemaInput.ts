@@ -7,6 +7,7 @@ import {
     setSubtract,
     mapFromIterable,
     iterableFind,
+    // @ts-ignore
     mapSortBy,
     mapMapSync,
     mapMergeInto,
@@ -226,7 +227,7 @@ export class Ref {
     get name(): string {
         const path = Array.from(this.path);
 
-        for (;;) {
+        for (; ;) {
             const e = path.pop();
             if (e === undefined || e.kind === PathElementKind.Root) {
                 let name = this.addressURI !== undefined ? this.addressURI.filename() : "";
@@ -395,7 +396,7 @@ class Canonizer {
     private readonly _map = new EqualityMap<Ref, Location>();
     private readonly _schemaAddressesAdded = new Set<string>();
 
-    constructor(private readonly _ctx: RunContext) {}
+    constructor(private readonly _ctx: RunContext) { }
 
     private addIDs(schema: any, loc: Location) {
         if (schema === null) return;
@@ -532,7 +533,7 @@ class Resolver {
         private readonly _ctx: RunContext,
         private readonly _store: JSONSchemaStore,
         private readonly _canonizer: Canonizer
-    ) {}
+    ) { }
 
     private async tryResolveVirtualRef(
         fetchBase: Location,
@@ -544,7 +545,7 @@ class Resolver {
         // we don't know its $id mapping yet, which means we don't know where we
         // will end up.  What we do if we encounter a new schema is add all its
         // IDs first, and then try to canonize again.
-        for (;;) {
+        for (; ;) {
             const loc = this._canonizer.canonize(fetchBase, virtualRef);
             const canonical = loc.canonicalRef;
             assert(canonical.hasAddress, "Canonical ref can't be resolved without an address");
@@ -635,10 +636,12 @@ async function addTypesInSchema(
         properties: StringMap,
         requiredArray: string[],
         additionalProperties: any,
+        // @ts-ignore
         sortKey: (k: string) => number | string = (k: string) => k.toLowerCase()
     ): Promise<TypeRef> {
         const required = new Set(requiredArray);
-        const propertiesMap = mapSortBy(mapFromObject(properties), (_, k) => sortKey(k));
+        // const propertiesMap = mapSortBy(mapFromObject(properties), (_, k) => sortKey(k));
+        const propertiesMap = mapFromObject(properties);
         const props = await mapMapSync(propertiesMap, async (propSchema, propName) => {
             const propLoc = loc.push("properties", propName);
             const t = await toType(
