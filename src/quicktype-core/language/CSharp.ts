@@ -427,7 +427,7 @@ export class CSharpRenderer extends ConvenienceRenderer {
 
         if (this._csOptions.virtual)
             propertyArray.push("virtual ");
-        
+
         return [...propertyArray, csType, " ", name, " { get; set; }"];
     }
 
@@ -950,7 +950,7 @@ export class NewtonsoftCSharpRenderer extends CSharpRenderer {
     private emitConverterClass(): void {
         // FIXME: Make Converter a Named
         const converterName: Sourcelike = ["Converter"];
-        this.emitType(undefined, AccessModifier.Internal, "static class", converterName, undefined, () => {
+        this.emitType(undefined, AccessModifier.Public, "static class", converterName, undefined, () => {
             this.emitLine("public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings");
             this.emitBlock(() => {
                 this.emitLine("MetadataPropertyHandling = MetadataPropertyHandling.Ignore,");
