@@ -831,13 +831,23 @@ export class UnionType extends SetOperationType {
     constructor(typeRef: TypeRef, graph: TypeGraph, memberRefs?: ReadonlySet<TypeRef>) {
         super(typeRef, graph, "union", memberRefs);
         if (memberRefs !== undefined) {
-            messageAssert(memberRefs.size > 0, "IRNoEmptyUnions", {});
+            if (memberRefs.size == 0) {
+                // Temporarily disabling IRNoEmptyUnions assert
+            }
+            else {
+                messageAssert(memberRefs.size > 0, "IRNoEmptyUnions", {});
+            }
+            
         }
     }
 
     setMembers(memberRefs: ReadonlySet<TypeRef>): void {
-        messageAssert(memberRefs.size > 0, "IRNoEmptyUnions", {});
-        super.setMembers(memberRefs);
+        if (memberRefs.size == 0) {
+            // Temporarily disabling IRNoEmptyUnions assert
+        } else {
+            messageAssert(memberRefs.size > 0, "IRNoEmptyUnions", {});
+            super.setMembers(memberRefs);
+        }
     }
 
     get stringTypeMembers(): ReadonlySet<Type> {
